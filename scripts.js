@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function updateUrl(word) {
         if (word) {
-            const newUrl = `/${word}`;
+            const newUrl = `/#${word}`;
             window.history.pushState({}, '', newUrl);
         } else {
             window.history.pushState({}, '', '/');
