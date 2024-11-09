@@ -526,34 +526,14 @@ copyButton.style.display = 'none';
     searchBox.addEventListener('input', updateCopyButton);
     
 
-    document.getElementById('copyButton').addEventListener('click', () => {
-        // Disable searchBox and make both searchBox and its container semi-transparent
-        searchBox.disabled = true;
-        searchBox.style.opacity = 0.7;
-    
-        // Assume surrounding container has the class "search-box"
-        const searchContainer = document.querySelector('.search-box');
-        if (searchContainer) {
-            searchContainer.style.opacity = 0.7;
-        }
-    
-        // Re-enable and reset opacity after 1 second
-        setTimeout(() => {
-            searchBox.disabled = false;
-            searchBox.style.opacity = 1;
-            
-            if (searchContainer) {
-                searchContainer.style.opacity = 1;
-            }
-        }, 1000);
-    
-        // Change copyButton color as feedback
-        copyButton.style.color = '#2d6536';
+    copyButton.addEventListener('click', () => {
+        // Change color to light green on click
+        copyButton.style.color = '#2d6536'; // Light green color (you can adjust if needed)
     
         // Revert to original color after 250 ms
         setTimeout(() => {
-            copyButton.style.color = '';
-        }, 1130);
+            copyButton.style.color = ''; // Reset to default color
+        }, 775);
     });
     
     
