@@ -432,22 +432,30 @@ searchBox.addEventListener('input', () => {
         }
     });
     document.getElementById('copyButton').addEventListener('click', () => {
-    const searchBox = document.getElementById('searchBox');
-    const resultDiv = document.getElementById('result');
-    const searchQuery = searchBox.value.trim();
-    const searchResult = resultDiv.textContent.trim();
-    const sourceUrl = window.location.href;
-    const copyButton = document.getElementById('copyButton');
+        const searchBox = document.getElementById('searchBox');
+        const ghostText = document.getElementById('ghostText');
+        const resultDiv = document.getElementById('result');
     
-    copyButton.copyLabel = '';
-    copyButton.successLabel = '';
-    if (searchQuery && searchResult) {
-        const copyText = `${searchQuery}\n\n\n${searchResult}\n\n\n\nSource: ${sourceUrl}`;
-        navigator.clipboard.writeText(copyText).catch(err => {
-            console.error('Kopyalama hatası:', err);
-        });
-    }
-});
+        // `searchBox` ve `ghostText` içeriğini birleştirerek tam başlığı oluştur
+        const fullTitle = (searchBox.value + ghostText.textContent).toUpperCase(); // Tam başlık büyük harfe çevrilir
+    
+        const searchResult = resultDiv.textContent.trim();
+        const sourceUrl = window.location.href;
+        const copyButton = document.getElementById('copyButton');
+        
+        copyButton.copyLabel = '';
+        copyButton.successLabel = '';
+        if (fullTitle && searchResult) {
+            const copyText = `${fullTitle}\n\n\n${searchResult}\n\n\n\nSource: ${sourceUrl}`;
+            navigator.clipboard.writeText(copyText).catch(err => {
+                console.error('Kopyalama hatası:', err);
+            });
+        }
+    });
+    
+    
+    
+    
 
 copyButton.style.display = 'none';
     const animatedText = document.getElementById('animatedText');
