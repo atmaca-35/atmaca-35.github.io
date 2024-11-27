@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
     
-    
     function toTurkishLowerCase(str) {
         return str
             .replace(/I/g, 'ı')
@@ -279,24 +278,37 @@ function searchWord(query) {
         });
     }
 
-    function highlightWords(text) {
-        let markedText = text;
-        for (const [key, value] of Object.entries(specialWords)) {
-            const regex = new RegExp(`\\b${key}\\b`, 'gi');
-            markedText = markedText.replace(regex, (match) => `[SPECIAL:${key}]`);
-        }
+    function highlightWords(text) {   
+    let markedText = text;
 
-        let resultText = markedText;
-        for (const [key, value] of Object.entries(specialWords)) {
-            const regex = new RegExp(`\\[SPECIAL:${key}\\](\\s+)(\\S+)`, 'gi');
-            resultText = resultText.replace(regex, (match, p1, p2) => `<b>${value}</b>${p1}<span class="p">${p2}</span>`);
-        }
-
-        resultText = resultText.replace(/\[SPECIAL:\S+\]/g, '');
-
-        return resultText;
+    for (const [key, value] of Object.entries(specialWords)) {
+        const regex = new RegExp(`\\b${key}\\b`, 'gi');
+        markedText = markedText.replace(regex, (match) => `[SPECIAL:${key}]`);
     }
 
+    let resultText = markedText;
+
+    for (const [key, value] of Object.entries(specialWords)) {
+        const regex = new RegExp(`\\[SPECIAL:${key}\\]([\\s,;.)()]*)(?!and)(\\S+)`, 'gi');
+
+        resultText = resultText.replace(regex, (match, p1, p2) => {
+            if (/[.,;()]/.test(p1)) {
+                return `<b>${value}</b>${p1}${p2}`;
+            } else {
+                return `<b>${value}</b>${p1}<span class="p">${p2}</span>`;
+            }
+        });
+        
+        const andRegex = new RegExp(`\\[SPECIAL:${key}\\](\\s+)(and)`, 'gi');
+        resultText = resultText.replace(andRegex, (match, p1, p2) => {
+            return `<b>${value}</b>${p1}<span class="and">${p2}</span>`;
+        });
+    }
+    
+    resultText = resultText.replace(/\[SPECIAL:\S+\]/g, '');
+
+    return resultText;
+}
     function updateSearchBoxPlaceholder(query) {
         if (!query) {
             ghostText.textContent = '';
@@ -363,10 +375,19 @@ function searchWord(query) {
             const clickableWordsJson = await clickableWordsResponse.json();
             clickableWords = clickableWordsJson.clickableWords;
 
-            const specialWordsResponse = await fetch('vocabulary/specialWords.json');
-            if (!specialWordsResponse.ok) throw new Error('specialWords could not be loaded');
-            const specialWordsJson = await specialWordsResponse.json();
-            specialWords = specialWordsJson.specialWords;
+            const specialWordsResponse = await fetch('vocabulary/specialWords.txt');
+if (!specialWordsResponse.ok) throw new Error('specialWords could not be loaded');
+const specialWordsText = await specialWordsResponse.text();
+
+// TXT formatını işleyip bir nesneye dönüştür
+specialWords = {};
+specialWordsText.split("\n").forEach(line => {
+    const [key, value] = line.split(":").map(item => item.trim());
+    if (key && value) {
+        specialWords[key] = value;
+    }
+});
+
 
             const entryWordsResponse = await fetch('vocabulary/entryWords.json');
             if (!entryWordsResponse.ok) throw new Error('entryWords could not be loaded');
@@ -436,8 +457,7 @@ searchBox.addEventListener('input', () => {
         const ghostText = document.getElementById('ghostText');
         const resultDiv = document.getElementById('result');
     
-        // `searchBox` ve `ghostText` içeriğini birleştirerek tam başlığı oluştur
-        const fullTitle = (searchBox.value + ghostText.textContent).toUpperCase(); // Tam başlık büyük harfe çevrilir
+        const fullTitle = (searchBox.value + ghostText.textContent).toUpperCase();
     
         const searchResult = resultDiv.textContent.trim();
         const sourceUrl = window.location.href;
@@ -452,11 +472,7 @@ searchBox.addEventListener('input', () => {
             });
         }
     });
-    
-    
-    
-    
-
+   
 copyButton.style.display = 'none';
     const animatedText = document.getElementById('animatedText');
     function animateText() {
@@ -530,20 +546,11 @@ copyButton.style.display = 'none';
         }
     });
     
-    
     searchBox.addEventListener('input', updateCopyButton);
-    
-
     copyButton.addEventListener('click', () => {
-        // Change color to light green on click
-        copyButton.style.color = '#2d6536'; // Light green color (you can adjust if needed)
-    
-        // Revert to original color after 250 ms
+        copyButton.style.color = '#32cd32';
         setTimeout(() => {
-            copyButton.style.color = ''; // Reset to default color
+            copyButton.style.color = '';
         }, 775);
-    });
-    
-    
-    
+    }); 
 });
